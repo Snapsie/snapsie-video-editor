@@ -14,6 +14,7 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import initializeIPCListeners from './ipc';
 
 class AppUpdater {
   constructor() {
@@ -24,12 +25,6 @@ class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | null = null;
-
-ipcMain.on('ipc-example', async (event, arg) => {
-  const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
-  console.log(msgTemplate(arg));
-  event.reply('ipc-example', msgTemplate('pong'));
-});
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -74,6 +69,14 @@ const createWindow = async () => {
     width: 1024,
     height: 728,
     icon: getAssetPath('icon.png'),
+    nodeIntegration: false,
+    contextIsolation: true,
+    enableRemoteModule: true,
+    webSecurity: false,
+    allowRunningInsecureContent: true,
+    worldSafeExecuteJavaScript: true,
+    contentSecurityPolicy:
+      "script-src script-src-elem 'self' 'unsafe-inline' blob:;",
     webPreferences: {
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
@@ -90,7 +93,7 @@ const createWindow = async () => {
     if (process.env.START_MINIMIZED) {
       mainWindow.minimize();
     } else {
-      mainWindow.show();
+      mainWindow.maximize();
     }
   });
 
@@ -106,6 +109,8 @@ const createWindow = async () => {
     shell.openExternal(edata.url);
     return { action: 'deny' };
   });
+
+  initializeIPCListeners();
 
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
