@@ -18,6 +18,8 @@ function VideoThumbnail({ video, onDelete }: VideoThumbnailProps) {
   const [videoThumbnail, setVideoThumbnail] = useState<Blob | null>(null);
   const [videoMetadata, setVideoMetadata] = useState<any>(null);
 
+  console.log(video);
+
   const handleMouseEnter = () => {
     setShowIcons(true);
   };
@@ -31,7 +33,7 @@ function VideoThumbnail({ video, onDelete }: VideoThumbnailProps) {
       window.electron.IPCRenderer.sendMessage(
         EXTRACT_VIDEO_NON_BLACK_THUMBNAIL,
         {
-          videoPath: video.file.path,
+          videoPath: video.path,
           videoId: video.id,
         }
       );
@@ -49,7 +51,7 @@ function VideoThumbnail({ video, onDelete }: VideoThumbnailProps) {
       );
 
       window.electron.IPCRenderer.sendMessage(EXTRACT_VIDEO_METADATA, {
-        videoPath: video.file.path,
+        videoPath: video.path,
         videoId: video.id,
       });
 
@@ -70,7 +72,7 @@ function VideoThumbnail({ video, onDelete }: VideoThumbnailProps) {
     // Clean up the event listener when the component unmounts
   }, [video]);
 
-  const thumbnailAlt = `${video.file.name} thumbnail`;
+  const thumbnailAlt = `${video.filename} thumbnail`;
 
   return (
     <div
@@ -89,7 +91,7 @@ function VideoThumbnail({ video, onDelete }: VideoThumbnailProps) {
       </div>
       <div className="mt-2 text-left">
         <div className="text-sm truncate font-semibold text-gray-600">
-          {video.file.name}
+          {video.filename}
         </div>
       </div>
       <div

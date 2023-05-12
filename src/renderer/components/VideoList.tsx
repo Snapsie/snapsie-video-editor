@@ -1,21 +1,73 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { v4 as uuid } from 'uuid';
 import Video from 'renderer/interfaces/video';
+import { STORE_ADD_VIDEO, STORE_CHANGED, STORE_GET_VIDEO_LIST } from 'consts';
 import VideoThumbnail from './VideoThumbnail';
 
 function VideoList() {
   const [videos, setVideos] = useState<Video[]>([]);
 
+  window.electron.IPCRenderer.on(STORE_CHANGED, (args: unknown) => {
+    const { new: newStore } = args as {
+      old: unknown;
+      new: [string, unknown][];
+    };
+
+    const newStoreEntries = Object.entries(newStore) as unknown as Array<
+      [id: string, video: Video]
+    >;
+
+    const newVideos = newStoreEntries
+      .filter(([id]) => !videos.some((v) => v.id === id))
+      .map(([id, video]) => {
+        return {
+          id,
+          path: video.path,
+          filename: video.filename,
+        };
+      });
+
+    if (newVideos.length > 0) {
+      setVideos((prevVideos) => [...prevVideos, ...newVideos]);
+    }
+  });
+
+  useEffect(() => {
+    const unsubscribe = window.electron.IPCRenderer.on(
+      STORE_GET_VIDEO_LIST,
+      (args: unknown) => {
+        const { videos: newVideos } = args as { videos: Video[] };
+        const parsedVideos = Object.entries(newVideos)
+          .filter(([id]) => !videos.some((v) => v.id === id))
+          .map(([id, video]) => {
+            return {
+              id,
+              path: video.path,
+              filename: video.filename,
+            };
+          });
+        setVideos(parsedVideos);
+      }
+    );
+
+    window.electron.IPCRenderer.sendMessage(STORE_GET_VIDEO_LIST, {});
+
+    return () => {
+      unsubscribe();
+    };
+  }, [videos]);
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log('Handle file select');
     if (e.target.files === null) return;
 
     const file = e.target.files[0];
-    const newVideo = {
-      id: uuid(),
-      file,
-    };
-    setVideos((prevVideos: Video[]) => [...prevVideos, newVideo]);
+    const videoId = uuid();
+
+    window.electron.IPCRenderer.sendMessage(STORE_ADD_VIDEO, {
+      id: videoId,
+      path: file.path,
+      filename: file.path.split('/').pop(),
+    });
   };
 
   const handleDelete = (id: string) => {

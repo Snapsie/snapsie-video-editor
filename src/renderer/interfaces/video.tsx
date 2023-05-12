@@ -1,6 +1,7 @@
 interface Video {
   id: string;
-  file: any;
+  path: string;
+  filename: any;
 }
 
 export default Video;

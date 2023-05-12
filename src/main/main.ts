@@ -110,7 +110,7 @@ const createWindow = async () => {
     return { action: 'deny' };
   });
 
-  initializeIPCListeners();
+  initializeIPCListeners(mainWindow);
 
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
