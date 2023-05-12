@@ -1,5 +1,6 @@
 import NavBar from './components/NavBar';
 import PropertiesEditor from './components/PropertiesEditor';
+import TimelinePanel from './components/TimelinePanel';
 import VideoList from './components/VideoList';
 import VideoPlayer from './components/VideoPlayer';
 
@@ -22,7 +23,9 @@ function Editor() {
           </div>
         </div>
       </div>
-      <div className="h-2/5 bg-purple-300">What the hell</div>
+      <div className="h-2/5">
+        <TimelinePanel />
+      </div>
     </div>
   );
 }
