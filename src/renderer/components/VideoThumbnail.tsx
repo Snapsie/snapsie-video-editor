@@ -33,7 +33,7 @@ function VideoThumbnail({ video, onDelete }: VideoThumbnailProps) {
         }
       );
 
-      window.electron.IPCRenderer.on(
+      const unsubscribe = window.electron.IPCRenderer.on(
         generateMessageChannel(EXTRACT_VIDEO_NON_BLACK_THUMBNAIL, video.id),
         (args: unknown) => {
           const { thumbnailBuffer, thumbnailFormat } = args as {
@@ -44,14 +44,13 @@ function VideoThumbnail({ video, onDelete }: VideoThumbnailProps) {
           setVideoThumbnail(blob);
         }
       );
+
+      return () => {
+        unsubscribe();
+      };
     }
     fetchThumbnail();
     // Clean up the event listener when the component unmounts
-    return () => {
-      window.electron.IPCRenderer.removeAllListeners(
-        EXTRACT_VIDEO_NON_BLACK_THUMBNAIL
-      );
-    };
   }, [video]);
 
   const thumbnailAlt = `${video.file.name} thumbnail`;
