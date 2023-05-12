@@ -4,12 +4,6 @@ import path from 'path';
 
 const pathToFfmpeg = require('ffmpeg-static-electron').path;
 
-function arrayToBlob(data: number[]) {
-  const uint8Array = new Uint8Array(data);
-  const blob = new Blob([uint8Array], { type: 'image/png' });
-  return blob;
-}
-
 async function extractNonBlackThumbnail(videoFile: string) {
   const ffmpeg = new FfmpegCommand();
   ffmpeg.setFfmpegPath(pathToFfmpeg);
@@ -93,4 +87,24 @@ async function extractThumbnail(videoFile: string): Promise<Buffer> {
   });
 }
 
-export { extractNonBlackThumbnail, extractThumbnail };
+async function extractVideoMetadata(
+  videoPath: string
+): Promise<ffmpeg.FfprobeData> {
+  const ffmpeg = new FfmpegCommand();
+
+  ffmpeg.setFfmpegPath(pathToFfmpeg);
+
+  return new Promise((resolve, reject) => {
+    ffmpeg
+      .input(videoPath)
+      .ffprobe(function onFfprobeData(err: any, data: unknown) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(data);
+        }
+      });
+  });
+}
+
+export { extractNonBlackThumbnail, extractThumbnail, extractVideoMetadata };

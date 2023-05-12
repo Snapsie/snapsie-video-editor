@@ -1,10 +1,12 @@
 import {
+  EXTRACT_VIDEO_METADATA,
   EXTRACT_VIDEO_NON_BLACK_THUMBNAIL,
   generateMessageChannel,
 } from 'consts';
 import { useEffect, useState } from 'react';
 import { AiFillDelete, AiFillPlusCircle } from 'react-icons/ai';
 import Video from 'renderer/interfaces/video';
+import arrayBufferToBlob from 'renderer/utils/utils';
 
 interface VideoThumbnailProps {
   video: Video;
@@ -14,6 +16,7 @@ interface VideoThumbnailProps {
 function VideoThumbnail({ video, onDelete }: VideoThumbnailProps) {
   const [showIcons, setShowIcons] = useState(false);
   const [videoThumbnail, setVideoThumbnail] = useState<Blob | null>(null);
+  const [videoMetadata, setVideoMetadata] = useState<any>(null);
 
   const handleMouseEnter = () => {
     setShowIcons(true);
@@ -40,8 +43,22 @@ function VideoThumbnail({ video, onDelete }: VideoThumbnailProps) {
             thumbnailBuffer: any;
             thumbnailFormat: any;
           };
-          const blob = new Blob([thumbnailBuffer], { type: thumbnailFormat });
+          const blob = arrayBufferToBlob(thumbnailBuffer, thumbnailFormat);
           setVideoThumbnail(blob);
+        }
+      );
+
+      window.electron.IPCRenderer.sendMessage(EXTRACT_VIDEO_METADATA, {
+        videoPath: video.file.path,
+        videoId: video.id,
+      });
+
+      window.electron.IPCRenderer.on(
+        generateMessageChannel(EXTRACT_VIDEO_METADATA, video.id),
+        (args: unknown) => {
+          const { metadata } = args as { metadata: any };
+          console.log(metadata);
+          setVideoMetadata(metadata);
         }
       );
 
