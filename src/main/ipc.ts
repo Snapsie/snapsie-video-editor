@@ -1,4 +1,5 @@
 import { BrowserWindow, ipcMain } from 'electron';
+import Video from 'renderer/interfaces/video';
 import {
   EXTRACT_VIDEO_NON_BLACK_THUMBNAIL,
   EXTRACT_VIDEO_METADATA,
@@ -19,9 +20,8 @@ import {
   storeHasVideo,
   storeRemoveVideo,
 } from './core/store';
-import Video from 'renderer/interfaces/video';
 
-function initializeIPCListeners(mainWindow: Electron.BrowserWindow) {
+function initializeIPCListeners(mainWindow: BrowserWindow) {
   ipcMain.on(EXTRACT_VIDEO_NON_BLACK_THUMBNAIL, async (event, arg) => {
     const { videoPath, videoId } = arg;
 
@@ -65,7 +65,6 @@ function initializeIPCListeners(mainWindow: Electron.BrowserWindow) {
   });
 
   ipcMain.on(STORE_GET_VIDEO_LIST, async (event, arg) => {
-    console.log(storeGetVideoList());
     event.reply(generateMessageChannel(STORE_GET_VIDEO_LIST, arg), {
       videoList: storeGetVideoList(),
     });
