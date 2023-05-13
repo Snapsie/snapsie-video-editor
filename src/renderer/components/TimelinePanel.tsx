@@ -8,7 +8,7 @@ function TimelinePanel() {
   const [timelineScale, setTimelineScale] = useState(50);
   const initialTimeIntervals = 120; // 2 minutes
   const steps = 3; // 3 seconds each
-  const initialTimelineLayers = 2;
+  const initialTimelineLayers = 4;
 
   return (
     <div className="h-full w-full flex flex-col justify-start">

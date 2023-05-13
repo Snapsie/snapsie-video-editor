@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { v4 as uuid } from 'uuid';
 import Video from 'renderer/interfaces/video';
-import { STORE_ADD_VIDEO, STORE_CHANGED, STORE_GET_VIDEO_LIST } from 'consts';
+import {
+  STORE_ADD_VIDEO,
+  VIDEO_STORE_CHANGED,
+  STORE_GET_VIDEO_LIST,
+} from 'consts';
 import VideoThumbnail from './VideoThumbnail';
 
 function VideoList() {
   const [videos, setVideos] = useState<Video[]>([]);
 
-  window.electron.IPCRenderer.on(STORE_CHANGED, (args: unknown) => {
+  window.electron.IPCRenderer.on(VIDEO_STORE_CHANGED, (args: unknown) => {
     const { new: newStore } = args as {
       old: unknown;
       new: [string, unknown][];

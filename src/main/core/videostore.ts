@@ -2,36 +2,35 @@ import Video from 'renderer/interfaces/video';
 
 const Store = require('electron-store');
 
-const store = new Store();
-store.clear();
+const videoStore = new Store();
+videoStore.clear();
 
 function storeAddVideo(video: Video) {
-  console.log(video);
-  store.set(video.id, video);
+  videoStore.set(video.id, video);
 }
 
 function storeRemoveVideo(videoId: string) {
-  store.delete(videoId);
+  videoStore.delete(videoId);
 }
 
 function storeGetVideoList() {
-  return store.store as Video[];
+  return videoStore.store as Video[];
 }
 
 function storeHasVideo(videoId: string) {
-  return store.has(videoId);
+  return videoStore.has(videoId);
 }
 
 function clearStore() {
-  store.clear();
+  videoStore.clear();
 }
 
 function storeGetCount() {
-  return store.size;
+  return videoStore.size;
 }
 
 export {
-  store,
+  videoStore,
   storeAddVideo,
   storeRemoveVideo,
   storeGetVideoList,
